@@ -1,0 +1,24 @@
+# Using a direct prompt
+- name: Run Claude Code with direct prompt
+  uses: anthropics/claude-code-base-action@beta
+  with:
+    prompt: "Your prompt here"
+    allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool"
+    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+# Or using a prompt from a file
+- name: Run Claude Code with prompt file
+  uses: anthropics/claude-code-base-action@beta
+  with:
+    prompt_file: "/path/to/prompt.txt"
+    allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool"
+    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+# Or limiting the conversation turns
+- name: Run Claude Code with limited turns
+  uses: anthropics/claude-code-base-action@beta
+  with:
+    prompt: "Your prompt here"
+    allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool"
+    max_turns: "5" # Limit conversation to 5 turns
+    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
