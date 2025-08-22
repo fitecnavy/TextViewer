@@ -158,18 +158,6 @@ body {
   @apply flex items-center gap-1;
 }
 
-.empty-library {
-  @apply flex items-center justify-center h-full min-h-[500px];
-}
-
-.drop-zone-library {
-  @apply border-2 border-dashed border-orange-300 rounded-xl p-16 text-center text-gray-600 transition-all duration-300 bg-white/50 backdrop-blur-sm;
-  max-width: 600px;
-}
-
-.drop-zone-library.dragover {
-  @apply border-orange-500 bg-orange-50 text-orange-700 scale-105;
-}
 
 .books-grid {
   @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6;
@@ -296,9 +284,6 @@ body {
     @apply grid-cols-2 gap-4;
   }
 
-  .drop-zone-library {
-    @apply p-8;
-  }
 
   .library-header {
     @apply flex-col items-start gap-4;

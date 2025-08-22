@@ -29,7 +29,6 @@ class TextViewer {
         this.initializeElements();
         this.bindEvents();
         this.registerServiceWorker();
-        this.setupDragAndDrop();
         this.loadLibrary();
         
         // Make instance globally available for Electron
@@ -38,11 +37,8 @@ class TextViewer {
 
     initializeElements() {
         this.elements = {
-            openFileBtn: document.getElementById('openFileBtn'),
-            clearBtn: document.getElementById('clearBtn'),
             toggleSidebarBtn: document.getElementById('toggleSidebarBtn'),
             searchBtn: document.getElementById('searchBtn'),
-            settingsBtn: document.getElementById('settingsBtn'),
             searchContainer: document.getElementById('searchContainer'),
             searchInput: document.getElementById('searchInput'),
             prevSearchBtn: document.getElementById('prevSearchBtn'),
@@ -51,7 +47,6 @@ class TextViewer {
             closeSearchBtn: document.getElementById('closeSearchBtn'),
             sidebar: document.getElementById('sidebar'),
             textContent: document.getElementById('textContent'),
-            dropZone: document.getElementById('dropZone'),
             fileInfoContent: document.getElementById('fileInfoContent'),
             statusLeft: document.getElementById('statusLeft'),
             statusRight: document.getElementById('statusRight'),
@@ -61,7 +56,6 @@ class TextViewer {
             loadingOverlay: document.getElementById('loadingOverlay'),
             // Library elements
             libraryView: document.getElementById('libraryView'),
-            emptyLibrary: document.getElementById('emptyLibrary'),
             booksGrid: document.getElementById('booksGrid'),
             addBookBtn: document.getElementById('addBookBtn'),
             totalBooks: document.getElementById('totalBooks'),
@@ -73,9 +67,7 @@ class TextViewer {
     }
 
     bindEvents() {
-        this.elements.openFileBtn.addEventListener('click', () => this.addBook());
         this.elements.addBookBtn.addEventListener('click', () => this.addBook());
-        this.elements.clearBtn.addEventListener('click', () => this.clearContent());
         this.elements.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
         this.elements.searchBtn.addEventListener('click', () => this.toggleSearch());
         this.elements.closeSearchBtn.addEventListener('click', () => this.closeSearch());
@@ -101,7 +93,7 @@ class TextViewer {
                         e.preventDefault();
                         if (this.currentView === 'viewer') this.toggleSearch();
                         break;
-                    case 'w':
+                    case 'Escape':
                         e.preventDefault();
                         if (this.currentView === 'viewer') this.showLibrary();
                         break;
@@ -128,46 +120,6 @@ class TextViewer {
         }
     }
 
-    setupDragAndDrop() {
-        const dropZone = this.elements.dropZone;
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, this.preventDefaults, false);
-            document.body.addEventListener(eventName, this.preventDefaults, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                if (this.currentView === 'library') {
-                    dropZone.classList.add('dragover');
-                } else {
-                    this.elements.textContent.querySelector('.drop-zone')?.classList.add('dragover');
-                }
-            }, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-                if (this.currentView === 'library') {
-                    dropZone.classList.remove('dragover');
-                } else {
-                    this.elements.textContent.querySelector('.drop-zone')?.classList.remove('dragover');
-                }
-            }, false);
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                this.addBookFromFile(files[0]);
-            }
-        }, false);
-    }
-
-    preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
 
     async addBook() {
         try {
@@ -324,15 +276,6 @@ class TextViewer {
     }
 
     renderLibrary() {
-        if (this.library.length === 0) {
-            this.elements.emptyLibrary.classList.remove('hidden');
-            this.elements.booksGrid.classList.add('hidden');
-            return;
-        }
-
-        this.elements.emptyLibrary.classList.add('hidden');
-        this.elements.booksGrid.classList.remove('hidden');
-
         const colors = ['variant-blue', 'variant-green', 'variant-purple', 'variant-red', 'variant-indigo', 'variant-pink'];
         
         this.elements.booksGrid.innerHTML = this.library.map((book, index) => {
@@ -432,9 +375,9 @@ class TextViewer {
         this.closeSearch();
         
         // Update button states
-        this.elements.openFileBtn.innerHTML = '📖 책 추가';
-        this.elements.clearBtn.disabled = true;
+        this.elements.addBookBtn.innerHTML = '📖 책 추가하기';
         this.elements.searchBtn.disabled = true;
+        this.elements.backToLibraryBtn.classList.add('hidden');
         this.elements.statusLeft.textContent = '서재';
         
         // Update file info
@@ -451,9 +394,9 @@ class TextViewer {
         this.elements.textViewer.classList.remove('hidden');
         
         // Update button states
-        this.elements.openFileBtn.innerHTML = '📁 파일 열기';
-        this.elements.clearBtn.disabled = false;
+        this.elements.addBookBtn.innerHTML = '📖 책 추가하기';
         this.elements.searchBtn.disabled = false;
+        this.elements.backToLibraryBtn.classList.remove('hidden');
         
         if (this.selectedBook) {
             this.elements.currentBookTitle.textContent = this.selectedBook.name;
@@ -583,15 +526,6 @@ class TextViewer {
         if (this.currentView === 'viewer') {
             // Return to library view
             this.showLibrary();
-        } else {
-            // Clear library view (optional - might want to remove this)
-            this.currentFile = null;
-            this.currentContent = '';
-            this.searchResults = [];
-            this.currentSearchIndex = -1;
-            this.selectedBook = null;
-            
-            this.closeSearch();
         }
     }
 

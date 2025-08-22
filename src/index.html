@@ -22,11 +22,8 @@
         <!-- Toolbar -->
         <div class="toolbar">
             <div class="toolbar-left">
-                <button id="openFileBtn" class="btn btn-primary">
-                    📁 파일 열기
-                </button>
-                <button id="clearBtn" class="btn btn-secondary" disabled>
-                    🗑️ 지우기
+                <button id="addBookBtn" class="btn btn-primary">
+                    📖 책 추가하기
                 </button>
                 <button id="toggleSidebarBtn" class="btn btn-icon">
                     ☰
@@ -36,8 +33,8 @@
                 <button id="searchBtn" class="btn btn-icon" disabled>
                     🔍
                 </button>
-                <button id="settingsBtn" class="btn btn-icon">
-                    ⚙️
+                <button id="backToLibraryBtn" class="btn btn-secondary hidden" id="backToLibraryBtn">
+                    ← 서재로 돌아가기
                 </button>
             </div>
         </div>
@@ -65,29 +62,8 @@
                     </div>
                 </div>
 
-                <!-- Empty State -->
-                <div id="emptyLibrary" class="empty-library">
-                    <div id="dropZone" class="drop-zone-library">
-                        <div class="text-center">
-                            <div class="text-6xl mb-6">📚</div>
-                            <div class="text-2xl font-medium mb-4">서재가 비어있습니다</div>
-                            <div class="text-lg text-gray-600 mb-6">
-                                텍스트 파일을 추가하여 나만의 디지털 서재를 만들어보세요
-                            </div>
-                            <div class="flex gap-4 justify-center">
-                                <button id="addBookBtn" class="btn btn-primary text-lg px-6 py-3">
-                                    📖 책 추가하기
-                                </button>
-                            </div>
-                            <div class="mt-4 text-sm text-gray-500">
-                                또는 파일을 이곳으로 드래그하세요
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Books Grid -->
-                <div id="booksGrid" class="books-grid hidden">
+                <div id="booksGrid" class="books-grid">
                     <!-- Book items will be dynamically added here -->
                 </div>
             </div>
@@ -107,9 +83,6 @@
             <!-- Text Viewer -->
             <div id="textViewer" class="text-viewer hidden">
                 <div class="viewer-header">
-                    <button id="backToLibraryBtn" class="btn btn-secondary">
-                        ← 서재로 돌아가기
-                    </button>
                     <h3 id="currentBookTitle" class="text-lg font-semibold text-gray-800"></h3>
                 </div>
                 <div id="textContent" class="text-content">
