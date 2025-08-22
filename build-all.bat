@@ -1,5 +1,6 @@
 @echo off
 REM Enhanced build script for TextViewer - Creates both EXE and APK files with improved error handling
+chcp 65001 > nul
 setlocal enabledelayedexpansion
 
 REM Test if we can actually see output
@@ -25,23 +26,46 @@ echo.
 
 REM Check for required tools
 echo %BLUE%[1/8] Checking build environment...%RESET%
-where npm >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
+
+REM Try to find npm in common locations
+set "NPM_PATH="
+for %%i in (npm.cmd) do set "NPM_PATH=%%~$PATH:i"
+if not defined NPM_PATH (
+    REM Try common Node.js installation paths
+    if exist "%ProgramFiles%\nodejs\npm.cmd" set "NPM_PATH=%ProgramFiles%\nodejs\npm.cmd"
+    if exist "%ProgramFiles(x86)%\nodejs\npm.cmd" set "NPM_PATH=%ProgramFiles(x86)%\nodejs\npm.cmd"
+    if exist "%APPDATA%\npm\npm.cmd" set "NPM_PATH=%APPDATA%\npm\npm.cmd"
+    if exist "%USERPROFILE%\AppData\Roaming\npm\npm.cmd" set "NPM_PATH=%USERPROFILE%\AppData\Roaming\npm\npm.cmd"
+)
+
+if not defined NPM_PATH (
     echo %RED%Error: npm is not installed or not in PATH%RESET%
+    echo Please install Node.js from https://nodejs.org/
     echo.
     echo Press any key to close this window...
     pause >nul
     exit /b 1
 )
 
-where npx >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
+echo Found npm at: %NPM_PATH%
+
+REM Check for npx (usually comes with npm)
+set "NPX_PATH="
+for %%i in (npx.cmd) do set "NPX_PATH=%%~$PATH:i"
+if not defined NPX_PATH (
+    REM Try to find npx with npm
+    for %%f in ("%NPM_PATH%") do set "NPX_PATH=%%~dpfnpx.cmd"
+)
+
+if not exist "%NPX_PATH%" (
     echo %RED%Error: npx is not available%RESET%
     echo.
     echo Press any key to close this window...
     pause >nul
     exit /b 1
 )
+
+echo Found npx at: %NPX_PATH%
 
 echo %GREEN%Build environment OK%RESET%
 
@@ -50,7 +74,7 @@ echo.
 echo %BLUE%[2/8] Checking dependencies...%RESET%
 if not exist "node_modules" (
     echo %YELLOW%Installing dependencies...%RESET%
-    npm install
+    "%NPM_PATH%" install
     if !ERRORLEVEL! NEQ 0 (
         echo %RED%Error: Failed to install dependencies%RESET%
         echo.
@@ -77,7 +101,7 @@ REM Build CSS
 echo.
 echo %BLUE%[4/8] Building Tailwind CSS...%RESET%
 if not exist "src\dist" mkdir "src\dist"
-npx tailwindcss -i src/styles.css -o src/dist/styles.css --minify
+"%NPX_PATH%" tailwindcss -i src/styles.css -o src/dist/styles.css --minify
 if %ERRORLEVEL% NEQ 0 (
     echo %RED%Error: CSS build failed%RESET%
     echo.
@@ -98,7 +122,7 @@ REM Build Windows EXE
 echo.
 echo %BLUE%[5/8] Building Windows EXE...%RESET%
 echo Building Electron app for Windows...
-npm run build-windows
+"%NPM_PATH%" run build-windows
 if %ERRORLEVEL% NEQ 0 (
     echo %RED%Error: Windows build failed!%RESET%
     echo.
@@ -113,7 +137,7 @@ echo.
 echo %BLUE%[6/8] Checking Capacitor configuration...%RESET%
 if not exist "capacitor.config.ts" (
     echo %YELLOW%Initializing Capacitor...%RESET%
-    npx cap init TextViewer com.textviewer.app
+    "%NPX_PATH%" cap init TextViewer com.textviewer.app
     if !ERRORLEVEL! NEQ 0 (
         echo %RED%Error: Capacitor initialization failed%RESET%
         echo.
@@ -128,7 +152,7 @@ if not exist "capacitor.config.ts" (
 REM Add Android platform if needed
 if not exist "android" (
     echo %YELLOW%Adding Android platform...%RESET%
-    npx cap add android
+    "%NPX_PATH%" cap add android
     if !ERRORLEVEL! NEQ 0 (
         echo %RED%Error: Failed to add Android platform%RESET%
         echo.
@@ -143,7 +167,7 @@ if not exist "android" (
 REM Sync files and build Android APK
 echo.
 echo %BLUE%[7/8] Syncing files to Android platform...%RESET%
-npx cap sync android
+"%NPX_PATH%" cap sync android
 if %ERRORLEVEL% NEQ 0 (
     echo %RED%Error: Android sync failed%RESET%
     echo.
