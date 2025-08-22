@@ -55,30 +55,65 @@
 
         <!-- Content Area -->
         <div class="content-area">
+            <!-- Library View (Books Shelf) -->
+            <div id="libraryView" class="library-view">
+                <div class="library-header">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">📚 내 서재</h2>
+                    <div class="library-stats">
+                        <span id="totalBooks" class="stat-item">총 <span class="font-semibold">0</span>권</span>
+                        <span id="totalSize" class="stat-item">0 MB</span>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyLibrary" class="empty-library">
+                    <div id="dropZone" class="drop-zone-library">
+                        <div class="text-center">
+                            <div class="text-6xl mb-6">📚</div>
+                            <div class="text-2xl font-medium mb-4">서재가 비어있습니다</div>
+                            <div class="text-lg text-gray-600 mb-6">
+                                텍스트 파일을 추가하여 나만의 디지털 서재를 만들어보세요
+                            </div>
+                            <div class="flex gap-4 justify-center">
+                                <button id="addBookBtn" class="btn btn-primary text-lg px-6 py-3">
+                                    📖 책 추가하기
+                                </button>
+                            </div>
+                            <div class="mt-4 text-sm text-gray-500">
+                                또는 파일을 이곳으로 드래그하세요
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books Grid -->
+                <div id="booksGrid" class="books-grid hidden">
+                    <!-- Book items will be dynamically added here -->
+                </div>
+            </div>
+
             <!-- Sidebar -->
             <div id="sidebar" class="sidebar">
                 <div class="file-info">
-                    <h3>파일 정보</h3>
+                    <h3>선택된 책 정보</h3>
                     <div id="fileInfoContent">
                         <div class="text-center text-gray-500 py-8">
-                            파일을 열어주세요
+                            책을 선택해주세요
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Text Viewer -->
-            <div class="text-viewer">
-                <div id="textContent" class="text-content loading">
-                    <div id="dropZone" class="drop-zone">
-                        <div class="text-center">
-                            <div class="text-4xl mb-4">📄</div>
-                            <div class="text-lg font-medium mb-2">텍스트 파일을 열어주세요</div>
-                            <div class="text-sm text-gray-500">
-                                파일을 드래그하거나 "파일 열기" 버튼을 클릭하세요
-                            </div>
-                        </div>
-                    </div>
+            <div id="textViewer" class="text-viewer hidden">
+                <div class="viewer-header">
+                    <button id="backToLibraryBtn" class="btn btn-secondary">
+                        ← 서재로 돌아가기
+                    </button>
+                    <h3 id="currentBookTitle" class="text-lg font-semibold text-gray-800"></h3>
+                </div>
+                <div id="textContent" class="text-content">
+                    <!-- Text content will be displayed here -->
                 </div>
             </div>
         </div>

@@ -141,6 +141,140 @@ body {
   @apply inline-block w-4 h-4 border-2 border-gray-300 border-t-primary-500 rounded-full animate-spin;
 }
 
+/* Library (Bookshelf) Styles */
+.library-view {
+  @apply flex-1 bg-gradient-to-br from-amber-50 to-orange-50 overflow-auto p-6;
+}
+
+.library-header {
+  @apply mb-8 flex items-center justify-between;
+}
+
+.library-stats {
+  @apply flex gap-6 text-sm text-gray-600;
+}
+
+.stat-item {
+  @apply flex items-center gap-1;
+}
+
+.empty-library {
+  @apply flex items-center justify-center h-full min-h-[500px];
+}
+
+.drop-zone-library {
+  @apply border-2 border-dashed border-orange-300 rounded-xl p-16 text-center text-gray-600 transition-all duration-300 bg-white/50 backdrop-blur-sm;
+  max-width: 600px;
+}
+
+.drop-zone-library.dragover {
+  @apply border-orange-500 bg-orange-50 text-orange-700 scale-105;
+}
+
+.books-grid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6;
+}
+
+.book-item {
+  @apply bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-2 relative overflow-hidden;
+  aspect-ratio: 3/4;
+}
+
+.book-item:hover {
+  @apply ring-2 ring-orange-300;
+}
+
+.book-item.selected {
+  @apply ring-2 ring-orange-500 shadow-xl;
+}
+
+.book-cover {
+  @apply h-full w-full relative overflow-hidden rounded-lg;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #92400e 100%);
+}
+
+.book-cover::before {
+  content: '';
+  @apply absolute inset-0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+}
+
+.book-spine {
+  @apply absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-b from-amber-800 to-amber-900;
+}
+
+.book-content {
+  @apply p-4 h-full flex flex-col justify-between;
+}
+
+.book-title {
+  @apply text-white font-bold text-sm mb-2 line-clamp-3 leading-tight;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.book-meta {
+  @apply text-white/80 text-xs space-y-1;
+}
+
+.book-size {
+  @apply text-white/60 text-xs;
+}
+
+.book-actions {
+  @apply absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200;
+}
+
+.book-delete {
+  @apply w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors;
+}
+
+.book-item:hover .book-actions {
+  @apply opacity-100;
+}
+
+/* Viewer Header */
+.viewer-header {
+  @apply bg-white border-b border-gray-200 p-4 flex items-center gap-4 shadow-sm;
+}
+
+/* Text viewer when showing book content */
+.text-viewer.active {
+  @apply block;
+}
+
+/* Line clamp utility */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Book color variants */
+.book-cover.variant-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+}
+
+.book-cover.variant-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+}
+
+.book-cover.variant-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+}
+
+.book-cover.variant-red {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+}
+
+.book-cover.variant-indigo {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+}
+
+.book-cover.variant-pink {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 50%, #be185d 100%);
+}
+
 @media (max-width: 768px) {
   .toolbar {
     @apply p-2;
@@ -152,5 +286,21 @@ body {
   
   .text-content {
     @apply p-4 text-xs;
+  }
+
+  .library-view {
+    @apply p-4;
+  }
+
+  .books-grid {
+    @apply grid-cols-2 gap-4;
+  }
+
+  .drop-zone-library {
+    @apply p-8;
+  }
+
+  .library-header {
+    @apply flex-col items-start gap-4;
   }
 }

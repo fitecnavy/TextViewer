@@ -21,10 +21,16 @@ class TextViewer {
         this.isCapacitor = window.Capacitor && Capacitor.isNativePlatform();
         this.isElectron = window.navigator.userAgent.includes('Electron');
         
+        // Library management
+        this.library = [];
+        this.selectedBook = null;
+        this.currentView = 'library'; // 'library' or 'viewer'
+        
         this.initializeElements();
         this.bindEvents();
         this.registerServiceWorker();
         this.setupDragAndDrop();
+        this.loadLibrary();
         
         // Make instance globally available for Electron
         window.textViewer = this;
@@ -52,12 +58,23 @@ class TextViewer {
             fileSize: document.getElementById('fileSize'),
             encoding: document.getElementById('encoding'),
             lineCount: document.getElementById('lineCount'),
-            loadingOverlay: document.getElementById('loadingOverlay')
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            // Library elements
+            libraryView: document.getElementById('libraryView'),
+            emptyLibrary: document.getElementById('emptyLibrary'),
+            booksGrid: document.getElementById('booksGrid'),
+            addBookBtn: document.getElementById('addBookBtn'),
+            totalBooks: document.getElementById('totalBooks'),
+            totalSize: document.getElementById('totalSize'),
+            textViewer: document.getElementById('textViewer'),
+            backToLibraryBtn: document.getElementById('backToLibraryBtn'),
+            currentBookTitle: document.getElementById('currentBookTitle')
         };
     }
 
     bindEvents() {
-        this.elements.openFileBtn.addEventListener('click', () => this.openFile());
+        this.elements.openFileBtn.addEventListener('click', () => this.addBook());
+        this.elements.addBookBtn.addEventListener('click', () => this.addBook());
         this.elements.clearBtn.addEventListener('click', () => this.clearContent());
         this.elements.toggleSidebarBtn.addEventListener('click', () => this.toggleSidebar());
         this.elements.searchBtn.addEventListener('click', () => this.toggleSearch());
@@ -70,6 +87,7 @@ class TextViewer {
         });
         this.elements.prevSearchBtn.addEventListener('click', () => this.previousSearch());
         this.elements.nextSearchBtn.addEventListener('click', () => this.nextSearch());
+        this.elements.backToLibraryBtn.addEventListener('click', () => this.showLibrary());
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -77,20 +95,24 @@ class TextViewer {
                 switch (e.key) {
                     case 'o':
                         e.preventDefault();
-                        this.openFile();
+                        this.addBook();
                         break;
                     case 'f':
                         e.preventDefault();
-                        this.toggleSearch();
+                        if (this.currentView === 'viewer') this.toggleSearch();
                         break;
                     case 'w':
                         e.preventDefault();
-                        this.clearContent();
+                        if (this.currentView === 'viewer') this.showLibrary();
                         break;
                 }
             }
             if (e.key === 'Escape') {
-                this.closeSearch();
+                if (this.currentView === 'viewer') {
+                    this.closeSearch();
+                } else {
+                    this.showLibrary();
+                }
             }
         });
     }
@@ -116,20 +138,28 @@ class TextViewer {
 
         ['dragenter', 'dragover'].forEach(eventName => {
             dropZone.addEventListener(eventName, () => {
-                dropZone.classList.add('dragover');
+                if (this.currentView === 'library') {
+                    dropZone.classList.add('dragover');
+                } else {
+                    this.elements.textContent.querySelector('.drop-zone')?.classList.add('dragover');
+                }
             }, false);
         });
 
         ['dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, () => {
-                dropZone.classList.remove('dragover');
+                if (this.currentView === 'library') {
+                    dropZone.classList.remove('dragover');
+                } else {
+                    this.elements.textContent.querySelector('.drop-zone')?.classList.remove('dragover');
+                }
             }, false);
         });
 
         dropZone.addEventListener('drop', (e) => {
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                this.handleFileSelection(files[0]);
+                this.addBookFromFile(files[0]);
             }
         }, false);
     }
@@ -139,57 +169,60 @@ class TextViewer {
         e.stopPropagation();
     }
 
-    async openFile() {
+    async addBook() {
         try {
             if (this.isElectron) {
-                await this.openFileElectron();
+                await this.addBookElectron();
             } else if (this.isCapacitor) {
-                await this.openFileCapacitor();
+                await this.addBookCapacitor();
             } else {
-                await this.openFileWeb();
+                await this.addBookWeb();
             }
         } catch (error) {
-            console.error('Error opening file:', error);
-            this.showError('파일을 열 수 없습니다: ' + error.message);
+            console.error('Error adding book:', error);
+            this.showError('책을 추가할 수 없습니다: ' + error.message);
         }
     }
 
-    async openFileElectron() {
+    async addBookElectron() {
         try {
             // Call Electron main process to open file dialog
             const result = await window.electronAPI?.showOpenDialog();
             if (result && !result.canceled && result.filePaths.length > 0) {
                 const fileData = await window.electronAPI?.readFile(result.filePaths[0]);
                 if (fileData) {
-                    this.loadFileFromElectron(fileData.filePath, fileData.content);
+                    this.addBookFromElectronData(fileData.filePath, fileData.content);
                 }
             }
         } catch (error) {
-            console.error('Error opening file in Electron:', error);
-            this.showError('파일을 열 수 없습니다: ' + error.message);
+            console.error('Error adding book in Electron:', error);
+            this.showError('책을 추가할 수 없습니다: ' + error.message);
         }
     }
 
     // Electron에서 파일을 로드하는 메서드
-    loadFileFromElectron(filePath, content) {
+    addBookFromElectronData(filePath, content) {
         const fileName = filePath.split('\\').pop().split('/').pop();
-        const stats = { size: content.length };
         
-        this.currentFile = {
+        const book = {
+            id: Date.now() + Math.random(),
             name: fileName,
-            size: stats.size,
+            size: content.length,
             type: 'text/plain',
-            lastModified: Date.now()
+            lastModified: Date.now(),
+            content: content,
+            filePath: filePath,
+            addedDate: new Date().toISOString()
         };
 
-        this.displayFile(content);
+        this.addBookToLibrary(book);
     }
 
-    async openFileCapacitor() {
+    async addBookCapacitor() {
         try {
             const result = await Dialog.confirm({
-                title: '파일 선택',
-                message: '텍스트 파일을 선택하시겠습니까?'
+                title: '책 추가',
+                message: '텍스트 파일을 서재에 추가하시겠습니까?'
             });
 
             if (result.value) {
@@ -198,45 +231,232 @@ class TextViewer {
                 this.showInfo('Capacitor 환경에서는 파일 선택 플러그인이 필요합니다.');
             }
         } catch (error) {
-            console.error('Capacitor file open error:', error);
-            this.showError('파일을 열 수 없습니다.');
+            console.error('Capacitor book add error:', error);
+            this.showError('책을 추가할 수 없습니다.');
         }
     }
 
-    async openFileWeb() {
+    async addBookWeb() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.txt,.log,.md,.js,.html,.css,.json,.xml,text/*';
+        input.multiple = true;
         
         input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                this.handleFileSelection(file);
-            }
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                this.addBookFromFile(file);
+            });
         };
         
         input.click();
     }
 
-    async handleFileSelection(file) {
+    async addBookFromFile(file) {
         this.showLoading(true);
         
         try {
-            this.currentFile = {
+            const content = await this.readFileContent(file);
+            
+            const book = {
+                id: Date.now() + Math.random(),
                 name: file.name,
                 size: file.size,
                 type: file.type,
-                lastModified: file.lastModified
+                lastModified: file.lastModified,
+                content: content,
+                addedDate: new Date().toISOString()
             };
 
-            const content = await this.readFileContent(file);
-            this.displayFile(content);
+            this.addBookToLibrary(book);
             
         } catch (error) {
             console.error('Error reading file:', error);
             this.showError('파일을 읽을 수 없습니다: ' + error.message);
         } finally {
             this.showLoading(false);
+        }
+    }
+
+    addBookToLibrary(book) {
+        // Check if book already exists
+        const existingIndex = this.library.findIndex(b => 
+            b.name === book.name && b.size === book.size
+        );
+        
+        if (existingIndex !== -1) {
+            // Update existing book
+            this.library[existingIndex] = book;
+            this.showInfo(`"${book.name}" 책이 업데이트되었습니다.`);
+        } else {
+            // Add new book
+            this.library.push(book);
+            this.showInfo(`"${book.name}" 책이 서재에 추가되었습니다.`);
+        }
+        
+        this.saveLibrary();
+        this.renderLibrary();
+        this.updateLibraryStats();
+    }
+
+    loadLibrary() {
+        try {
+            const saved = localStorage.getItem('textviewer-library');
+            if (saved) {
+                this.library = JSON.parse(saved);
+            }
+        } catch (error) {
+            console.error('Error loading library:', error);
+            this.library = [];
+        }
+        
+        this.renderLibrary();
+        this.updateLibraryStats();
+    }
+
+    saveLibrary() {
+        try {
+            localStorage.setItem('textviewer-library', JSON.stringify(this.library));
+        } catch (error) {
+            console.error('Error saving library:', error);
+            this.showError('서재 저장에 실패했습니다.');
+        }
+    }
+
+    renderLibrary() {
+        if (this.library.length === 0) {
+            this.elements.emptyLibrary.classList.remove('hidden');
+            this.elements.booksGrid.classList.add('hidden');
+            return;
+        }
+
+        this.elements.emptyLibrary.classList.add('hidden');
+        this.elements.booksGrid.classList.remove('hidden');
+
+        const colors = ['variant-blue', 'variant-green', 'variant-purple', 'variant-red', 'variant-indigo', 'variant-pink'];
+        
+        this.elements.booksGrid.innerHTML = this.library.map((book, index) => {
+            const colorClass = colors[index % colors.length];
+            const addedDate = new Date(book.addedDate).toLocaleDateString('ko-KR');
+            
+            return `
+                <div class="book-item group" data-book-id="${book.id}">
+                    <div class="book-cover ${colorClass}">
+                        <div class="book-spine"></div>
+                        <div class="book-content">
+                            <div class="book-title">${book.name}</div>
+                            <div class="book-meta">
+                                <div>${this.formatFileSize(book.size)}</div>
+                                <div>${addedDate}</div>
+                            </div>
+                        </div>
+                        <div class="book-actions">
+                            <button class="book-delete" data-book-id="${book.id}" title="삭제">×</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Bind events to book items
+        this.bindBookEvents();
+    }
+
+    bindBookEvents() {
+        // Book click events
+        this.elements.booksGrid.querySelectorAll('.book-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.classList.contains('book-delete')) {
+                    return; // Let delete handler handle this
+                }
+                
+                const bookId = parseFloat(item.dataset.bookId);
+                this.openBook(bookId);
+            });
+        });
+
+        // Delete button events
+        this.elements.booksGrid.querySelectorAll('.book-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const bookId = parseFloat(btn.dataset.bookId);
+                this.deleteBook(bookId);
+            });
+        });
+    }
+
+    updateLibraryStats() {
+        const totalSize = this.library.reduce((sum, book) => sum + book.size, 0);
+        this.elements.totalBooks.innerHTML = `총 <span class="font-semibold">${this.library.length}</span>권`;
+        this.elements.totalSize.textContent = this.formatFileSize(totalSize);
+    }
+
+    openBook(bookId) {
+        const book = this.library.find(b => b.id === bookId);
+        if (!book) {
+            this.showError('책을 찾을 수 없습니다.');
+            return;
+        }
+
+        this.selectedBook = book;
+        this.currentFile = {
+            name: book.name,
+            size: book.size,
+            type: book.type,
+            lastModified: book.lastModified
+        };
+        this.currentContent = book.content;
+        
+        this.showViewer();
+        this.displayFile(book.content);
+    }
+
+    deleteBook(bookId) {
+        const book = this.library.find(b => b.id === bookId);
+        if (!book) return;
+
+        if (confirm(`"${book.name}" 책을 서재에서 삭제하시겠습니까?`)) {
+            this.library = this.library.filter(b => b.id !== bookId);
+            this.saveLibrary();
+            this.renderLibrary();
+            this.updateLibraryStats();
+            this.showInfo(`"${book.name}" 책이 서재에서 삭제되었습니다.`);
+        }
+    }
+
+    showLibrary() {
+        this.currentView = 'library';
+        this.elements.libraryView.classList.remove('hidden');
+        this.elements.textViewer.classList.add('hidden');
+        this.elements.sidebar.classList.remove('active');
+        this.closeSearch();
+        
+        // Update button states
+        this.elements.openFileBtn.innerHTML = '📖 책 추가';
+        this.elements.clearBtn.disabled = true;
+        this.elements.searchBtn.disabled = true;
+        this.elements.statusLeft.textContent = '서재';
+        
+        // Update file info
+        this.elements.fileInfoContent.innerHTML = `
+            <div class="text-center text-gray-500 py-8">
+                책을 선택해주세요
+            </div>
+        `;
+    }
+
+    showViewer() {
+        this.currentView = 'viewer';
+        this.elements.libraryView.classList.add('hidden');
+        this.elements.textViewer.classList.remove('hidden');
+        
+        // Update button states
+        this.elements.openFileBtn.innerHTML = '📁 파일 열기';
+        this.elements.clearBtn.disabled = false;
+        this.elements.searchBtn.disabled = false;
+        
+        if (this.selectedBook) {
+            this.elements.currentBookTitle.textContent = this.selectedBook.name;
         }
     }
 
@@ -278,7 +498,8 @@ class TextViewer {
         this.elements.clearBtn.disabled = false;
         this.elements.searchBtn.disabled = false;
 
-        this.elements.statusLeft.textContent = `파일 로드 완료: ${this.currentFile.name}`;
+        const displayName = this.selectedBook ? this.selectedBook.name : this.currentFile.name;
+        this.elements.statusLeft.textContent = `읽는 중: ${displayName}`;
     }
 
     updateFileInfo() {
@@ -288,6 +509,17 @@ class TextViewer {
         const chars = this.currentContent.length;
         const sizeStr = this.formatFileSize(this.currentFile.size);
         const modifiedDate = new Date(this.currentFile.lastModified).toLocaleString('ko-KR');
+
+        let addedInfo = '';
+        if (this.selectedBook && this.selectedBook.addedDate) {
+            const addedDate = new Date(this.selectedBook.addedDate).toLocaleString('ko-KR');
+            addedInfo = `
+                <div class="file-info-item">
+                    <span class="file-info-label">서재 추가일:</span>
+                    <span class="file-info-value">${addedDate}</span>
+                </div>
+            `;
+        }
 
         this.elements.fileInfoContent.innerHTML = `
             <div class="file-info-item">
@@ -310,6 +542,15 @@ class TextViewer {
                 <span class="file-info-label">수정일:</span>
                 <span class="file-info-value">${modifiedDate}</span>
             </div>
+            ${addedInfo}
+            ${this.selectedBook ? `
+                <div class="mt-4 p-3 bg-orange-50 rounded-lg">
+                    <div class="text-sm text-orange-700 font-medium mb-2">📚 서재의 책</div>
+                    <button class="btn btn-secondary text-xs" onclick="textViewer.deleteBook(${this.selectedBook.id})">
+                        서재에서 삭제
+                    </button>
+                </div>
+            ` : ''}
             <div class="mt-4">
                 <label class="file-info-label block mb-2">인코딩:</label>
                 <select class="encoding-selector">
@@ -339,39 +580,19 @@ class TextViewer {
     }
 
     clearContent() {
-        this.currentFile = null;
-        this.currentContent = '';
-        this.searchResults = [];
-        this.currentSearchIndex = -1;
-
-        this.elements.textContent.innerHTML = `
-            <div id="dropZone" class="drop-zone">
-                <div class="text-center">
-                    <div class="text-4xl mb-4">📄</div>
-                    <div class="text-lg font-medium mb-2">텍스트 파일을 열어주세요</div>
-                    <div class="text-sm text-gray-500">
-                        파일을 드래그하거나 "파일 열기" 버튼을 클릭하세요
-                    </div>
-                </div>
-            </div>
-        `;
-        this.elements.textContent.classList.add('loading');
-
-        this.elements.fileInfoContent.innerHTML = `
-            <div class="text-center text-gray-500 py-8">
-                파일을 열어주세요
-            </div>
-        `;
-
-        this.elements.clearBtn.disabled = true;
-        this.elements.searchBtn.disabled = true;
-        this.elements.statusLeft.textContent = '준비됨';
-        this.elements.fileSize.textContent = '';
-        this.elements.encoding.textContent = '';
-        this.elements.lineCount.textContent = '';
-
-        this.closeSearch();
-        this.setupDragAndDrop();
+        if (this.currentView === 'viewer') {
+            // Return to library view
+            this.showLibrary();
+        } else {
+            // Clear library view (optional - might want to remove this)
+            this.currentFile = null;
+            this.currentContent = '';
+            this.searchResults = [];
+            this.currentSearchIndex = -1;
+            this.selectedBook = null;
+            
+            this.closeSearch();
+        }
     }
 
     toggleSidebar() {
