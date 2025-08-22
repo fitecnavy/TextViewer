@@ -2,6 +2,209 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* CSS Variables for Theme System */
+:root {
+  --theme-font-family: 'D2Coding, "Noto Sans Mono CJK KR", Consolas, "Liberation Mono", monospace';
+  --theme-font-size: 14px;
+  --theme-font-weight: 400;
+  --theme-letter-spacing: 0px;
+  --theme-font-stretch: normal;
+  --theme-line-height: 1.6;
+  --theme-bg-color: #ffffff;
+  --theme-text-color: #374151;
+  --theme-selection-color: #3b82f6;
+  --theme-highlight-color: #fbbf24;
+}
+
+/* Theme-aware text content styles */
+.text-content,
+.page-content {
+  background-color: var(--theme-bg-color);
+  color: var(--theme-text-color);
+}
+
+.text-content pre,
+.page-text {
+  font-family: var(--theme-font-family) !important;
+  font-size: var(--theme-font-size) !important;
+  font-weight: var(--theme-font-weight) !important;
+  letter-spacing: var(--theme-letter-spacing) !important;
+  font-stretch: var(--theme-font-stretch) !important;
+  line-height: var(--theme-line-height) !important;
+  background-color: var(--theme-bg-color) !important;
+  color: var(--theme-text-color) !important;
+}
+
+/* Selection styles */
+.text-content pre::selection,
+.page-text::selection {
+  background-color: var(--theme-selection-color);
+  color: white;
+}
+
+/* Search highlight styles */
+.highlight {
+  background-color: var(--theme-highlight-color);
+  color: #000;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.highlight.current {
+  background-color: var(--theme-selection-color);
+  color: white;
+}
+
+/* 가상 스크롤링 스타일 */
+.virtual-scroll-container {
+  position: relative;
+  overflow: auto;
+  height: 100%;
+}
+
+.virtual-scroll-spacer {
+  pointer-events: none;
+}
+
+.virtual-scroll-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+.chunk-content {
+  pointer-events: auto;
+  margin: 0;
+}
+
+/* 사이드바 탭 스타일 */
+.sidebar-tabs {
+  @apply flex border-b border-gray-200 mb-4;
+}
+
+.sidebar-tab {
+  @apply flex-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 border-b-2 border-transparent transition-colors;
+}
+
+.sidebar-tab.active {
+  @apply text-blue-600 border-blue-600 bg-blue-50;
+}
+
+.sidebar-content {
+  @apply flex-1 overflow-y-auto;
+}
+
+/* 테마 설정 스타일 */
+.theme-settings {
+  @apply p-2;
+}
+
+.theme-list {
+  @apply space-y-2;
+}
+
+.theme-item {
+  @apply p-2 rounded hover:bg-gray-50 transition-colors;
+}
+
+.theme-item.active {
+  @apply bg-blue-50 border border-blue-200;
+}
+
+.theme-preview-container {
+  @apply mt-4 p-4 border rounded-lg bg-gray-50;
+}
+
+.btn {
+  @apply px-4 py-2 rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500;
+}
+
+.btn-icon {
+  @apply p-2 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800;
+}
+
+/* 페이징 모드 스타일 */
+.view-mode-controls {
+  @apply flex gap-2;
+}
+
+.view-mode-controls .btn.active {
+  @apply bg-blue-600 text-white;
+}
+
+.page-controls {
+  @apply flex items-center gap-2;
+}
+
+.page-content {
+  @apply flex-1 overflow-hidden;
+  background-color: var(--theme-bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 500px;
+}
+
+.page-book {
+  @apply relative;
+  background: transparent;
+}
+
+.page-item {
+  @apply bg-white shadow-lg rounded-lg overflow-hidden relative;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 400px;
+  border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+.page-text {
+  @apply h-full overflow-hidden p-6;
+  font-family: var(--theme-font-family) !important;
+  font-size: var(--theme-font-size) !important;
+  font-weight: var(--theme-font-weight) !important;
+  letter-spacing: var(--theme-letter-spacing) !important;
+  line-height: var(--theme-line-height) !important;
+  background-color: var(--theme-bg-color) !important;
+  color: var(--theme-text-color) !important;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  box-sizing: border-box;
+  max-height: calc(100% - 40px);
+}
+
+.page-number {
+  @apply absolute bottom-4 right-4 text-xs text-gray-500 font-mono;
+  z-index: 10;
+}
+
+.cover-page {
+  @apply h-full flex items-center justify-center;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+}
+
+/* Turn.js 커스텀 스타일 */
+.turn-page {
+  background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.viewer-header {
+  @apply flex items-center justify-between px-6 py-4 border-b border-gray-200;
+}
+
 body {
   @apply m-0 p-0 font-sans bg-gray-50 text-gray-900;
   overflow: hidden;
@@ -158,7 +361,6 @@ body {
   @apply flex items-center gap-1;
 }
 
-
 .books-grid {
   @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6;
 }
@@ -225,11 +427,6 @@ body {
   @apply bg-white border-b border-gray-200 p-4 flex items-center gap-4 shadow-sm;
 }
 
-/* Text viewer when showing book content */
-.text-viewer.active {
-  @apply block;
-}
-
 /* Line clamp utility */
 .line-clamp-3 {
   display: -webkit-box;
@@ -284,8 +481,235 @@ body {
     @apply grid-cols-2 gap-4;
   }
 
-
   .library-header {
     @apply flex-col items-start gap-4;
   }
+}
+
+/* ===============================
+   다크 모드 스타일
+   =============================== */
+.dark-mode {
+  --theme-bg-color: #1f2937;
+  --theme-text-color: #f9fafb;
+  --theme-selection-color: #3b82f6;
+  --theme-highlight-color: #fbbf24;
+}
+
+.dark-mode .app-container {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+.dark-mode .toolbar {
+  background-color: #374151;
+  border-bottom-color: #4b5563;
+}
+
+.dark-mode .sidebar {
+  background-color: #374151;
+  border-left-color: #4b5563;
+}
+
+.dark-mode .btn {
+  background-color: #4b5563;
+  color: #f9fafb;
+  border-color: #6b7280;
+}
+
+.dark-mode .btn:hover {
+  background-color: #6b7280;
+}
+
+.dark-mode .btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.dark-mode .btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.dark-mode .btn.active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.dark-mode .search-container {
+  background-color: #374151;
+  border-bottom-color: #4b5563;
+}
+
+.dark-mode .search-input {
+  background-color: #4b5563;
+  color: #f9fafb;
+  border-color: #6b7280;
+}
+
+.dark-mode .library-view {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+.dark-mode .book-item {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.dark-mode .book-item:hover {
+  background-color: #4b5563;
+}
+
+.dark-mode .status-bar {
+  background-color: #374151;
+  border-top-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark-mode .simple-page {
+  background-color: var(--theme-bg-color);
+  color: var(--theme-text-color);
+}
+
+.dark-mode .cover-page {
+  background-color: #374151;
+  color: #f9fafb;
+}
+
+/* ===============================
+   읽기 모드 스타일
+   =============================== */
+.reading-mode .toolbar.minimal {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.reading-mode .toolbar.minimal:hover {
+  opacity: 1;
+}
+
+.reading-mode .sidebar {
+  transition: transform 0.3s ease;
+}
+
+.reading-mode .mode-controls .btn.active {
+  background-color: #10b981;
+  color: white;
+}
+
+/* ===============================
+   전체화면 모드 스타일
+   =============================== */
+.fullscreen .toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* ===============================
+   모드 컨트롤 버튼 스타일
+   =============================== */
+.mode-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mode-controls .btn {
+  min-width: auto;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.mode-controls .btn.active {
+  background-color: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+/* ===============================
+   간단한 페이지 모드 스타일
+   =============================== */
+.simple-page {
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  background-color: var(--theme-bg-color);
+  color: var(--theme-text-color);
+  overflow-y: auto;
+}
+
+.simple-page .page-text {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: var(--theme-bg-color);
+}
+
+.dark-mode .simple-page .page-text {
+  border-color: #4b5563;
+}
+
+.simple-page .page-number {
+  position: absolute;
+  bottom: 1rem;
+  right: 50%;
+  transform: translateX(50%);
+  font-weight: 500;
+}
+
+.cover-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.dark-mode .cover-page {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+}
+
+/* ===============================
+   인코딩 배지 스타일
+   =============================== */
+.encoding-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.encoding-utf8 {
+  background-color: #10b981;
+  color: white;
+  border-color: #059669;
+}
+
+.encoding-euckr {
+  background-color: #f59e0b;
+  color: white;
+  border-color: #d97706;
+}
+
+.encoding-badge:hover {
+  opacity: 0.8;
+  cursor: help;
+}
+
+.dark-mode .encoding-utf8 {
+  background-color: #059669;
+  border-color: #047857;
+}
+
+.dark-mode .encoding-euckr {
+  background-color: #d97706;
+  border-color: #b45309;
 }

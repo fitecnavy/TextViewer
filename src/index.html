@@ -9,6 +9,10 @@
     <link rel="manifest" href="./manifest.json">
     <link rel="stylesheet" href="./dist/styles.css">
     
+    <!-- Turn.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js" crossorigin="anonymous"></script>
+    
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/icon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="../assets/icon-16x16.png">
     <link rel="apple-touch-icon" href="../assets/icon-192x192.png">
@@ -25,15 +29,34 @@
                 <button id="addBookBtn" class="btn btn-primary">
                     📖 책 추가하기
                 </button>
-                <button id="toggleSidebarBtn" class="btn btn-icon">
+                <button id="toggleSidebarBtn" class="btn btn-icon" title="사이드바 토글">
                     ☰
                 </button>
             </div>
             <div class="toolbar-right">
-                <button id="searchBtn" class="btn btn-icon" disabled>
+                <div class="view-mode-controls hidden" id="viewModeControls">
+                    <button id="scrollModeBtn" class="btn btn-secondary active">
+                        📜 스크롤
+                    </button>
+                    <button id="pageModeBtn" class="btn btn-secondary">
+                        📖 페이징
+                    </button>
+                </div>
+                <div class="mode-controls" id="modeControls">
+                    <button id="themeToggleBtn" class="btn btn-icon" title="다크/라이트 모드 전환">
+                        🌙
+                    </button>
+                    <button id="readingModeBtn" class="btn btn-icon" title="읽기 모드">
+                        📚
+                    </button>
+                    <button id="fullscreenBtn" class="btn btn-icon" title="전체화면">
+                        ⛶
+                    </button>
+                </div>
+                <button id="searchBtn" class="btn btn-icon" disabled title="텍스트 검색">
                     🔍
                 </button>
-                <button id="backToLibraryBtn" class="btn btn-secondary hidden" id="backToLibraryBtn">
+                <button id="backToLibraryBtn" class="btn btn-secondary hidden">
                     ← 서재로 돌아가기
                 </button>
             </div>
@@ -43,10 +66,10 @@
         <div id="searchContainer" class="search-container">
             <input type="text" id="searchInput" class="search-input" placeholder="텍스트 검색...">
             <div class="search-controls">
-                <button id="prevSearchBtn" class="btn btn-icon" disabled>⬆️</button>
-                <button id="nextSearchBtn" class="btn btn-icon" disabled>⬇️</button>
+                <button id="prevSearchBtn" class="btn btn-icon" disabled title="이전 검색 결과">⬆️</button>
+                <button id="nextSearchBtn" class="btn btn-icon" disabled title="다음 검색 결과">⬇️</button>
                 <span id="searchInfo" class="search-info"></span>
-                <button id="closeSearchBtn" class="btn btn-icon">✖️</button>
+                <button id="closeSearchBtn" class="btn btn-icon" title="검색 닫기">✖️</button>
             </div>
         </div>
 
@@ -68,25 +91,53 @@
                 </div>
             </div>
 
-            <!-- Sidebar -->
-            <div id="sidebar" class="sidebar">
-                <div class="file-info">
-                    <h3>선택된 책 정보</h3>
-                    <div id="fileInfoContent">
-                        <div class="text-center text-gray-500 py-8">
-                            책을 선택해주세요
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Text Viewer -->
             <div id="textViewer" class="text-viewer hidden">
                 <div class="viewer-header">
                     <h3 id="currentBookTitle" class="text-lg font-semibold text-gray-800"></h3>
+                    <div class="page-controls hidden" id="pageControls">
+                        <button id="prevPageBtn" class="btn btn-icon" title="이전 페이지">⬅️</button>
+                        <span id="pageInfo" class="px-4 text-sm">1 / 1</span>
+                        <button id="nextPageBtn" class="btn btn-icon" title="다음 페이지">➡️</button>
+                    </div>
                 </div>
-                <div id="textContent" class="text-content">
-                    <!-- Text content will be displayed here -->
+                
+                <!-- Scroll Mode Content -->
+                <div id="scrollContent" class="text-content">
+                    <!-- Scroll content will be displayed here -->
+                </div>
+                
+                <!-- Page Mode Content -->
+                <div id="pageContent" class="page-content hidden">
+                    <div id="pageBook" class="page-book">
+                        <!-- Pages will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div id="sidebar" class="sidebar">
+                <!-- Tab Navigation -->
+                <div class="sidebar-tabs">
+                    <button id="fileInfoTab" class="sidebar-tab active">📄 파일 정보</button>
+                    <button id="themeTab" class="sidebar-tab">🎨 테마 설정</button>
+                </div>
+                
+                <!-- File Info Tab Content -->
+                <div id="fileInfoTabContent" class="sidebar-content">
+                    <div class="file-info">
+                        <h3>선택된 책 정보</h3>
+                        <div id="fileInfoContent">
+                            <div class="text-center text-gray-500 py-8">
+                                책을 선택해주세요
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Theme Tab Content -->
+                <div id="themeTabContent" class="sidebar-content hidden">
+                    <!-- Theme settings will be dynamically generated here -->
                 </div>
             </div>
         </div>
