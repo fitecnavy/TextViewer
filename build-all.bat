@@ -1,31 +1,22 @@
 @echo off
-REM Enhanced build script for TextViewer - Creates both EXE and APK files with improved error handling
-chcp 65001 > nul
+REM Enhanced build script for TextViewer - Creates both EXE and APK files
 setlocal enabledelayedexpansion
 
-REM Test if we can actually see output
 echo Starting build script...
 
 echo ===============================================
 echo    Building TextViewer for Windows and Android
 echo ===============================================
 
-REM Color settings for better visibility
-set "GREEN=[92m"
-set "RED=[91m"
-set "YELLOW=[93m"
-set "BLUE=[94m"
-set "RESET=[0m"
-
 REM Set build timestamp
 set TIMESTAMP=%date:~10,4%-%date:~4,2%-%date:~7,2%_%time:~0,2%-%time:~3,2%-%time:~6,2%
 set TIMESTAMP=%TIMESTAMP: =0%
 
-echo %BLUE%Build started at: %date% %time%%RESET%
+echo Build started at: %date% %time%
 echo.
 
 REM Check for required tools
-echo %BLUE%[1/8] Checking build environment...%RESET%
+echo [1/8] Checking build environment...
 
 REM Try to find npm in common locations
 set "NPM_PATH="
