@@ -1,0 +1,156 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  @apply m-0 p-0 font-sans bg-gray-50 text-gray-900;
+  overflow: hidden;
+}
+
+.app-container {
+  @apply h-screen flex flex-col;
+}
+
+.toolbar {
+  @apply bg-white border-b border-gray-200 p-3 flex items-center justify-between shadow-sm;
+}
+
+.toolbar-left {
+  @apply flex items-center gap-3;
+}
+
+.toolbar-right {
+  @apply flex items-center gap-3;
+}
+
+.btn {
+  @apply px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200;
+}
+
+.btn-primary {
+  @apply bg-primary-500 text-white hover:bg-primary-600;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+}
+
+.btn-icon {
+  @apply p-2 rounded-md text-gray-600 hover:bg-gray-100;
+}
+
+.search-container {
+  @apply bg-yellow-50 border-b border-yellow-200 p-3 hidden;
+}
+
+.search-container.active {
+  @apply flex items-center gap-3;
+}
+
+.search-input {
+  @apply flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+}
+
+.search-controls {
+  @apply flex items-center gap-2;
+}
+
+.search-info {
+  @apply text-sm text-gray-600 min-w-0;
+}
+
+.content-area {
+  @apply flex-1 flex overflow-hidden;
+}
+
+.sidebar {
+  @apply w-80 bg-white border-r border-gray-200 p-4 overflow-y-auto hidden;
+}
+
+.sidebar.active {
+  @apply block;
+}
+
+.file-info {
+  @apply mb-4;
+}
+
+.file-info h3 {
+  @apply text-lg font-semibold mb-2;
+}
+
+.file-info-item {
+  @apply flex justify-between py-1 text-sm;
+}
+
+.file-info-label {
+  @apply text-gray-600;
+}
+
+.file-info-value {
+  @apply font-medium;
+}
+
+.encoding-selector {
+  @apply w-full mt-2 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500;
+}
+
+.text-viewer {
+  @apply flex-1 bg-white overflow-auto;
+}
+
+.text-content {
+  @apply p-6 font-mono text-sm leading-relaxed whitespace-pre-wrap;
+  min-height: 100%;
+}
+
+.text-content.loading {
+  @apply flex items-center justify-center text-gray-500;
+  min-height: 400px;
+}
+
+.highlight {
+  @apply bg-yellow-200;
+}
+
+.highlight.current {
+  @apply bg-yellow-300;
+}
+
+.status-bar {
+  @apply bg-gray-100 border-t border-gray-200 px-4 py-2 text-xs text-gray-600 flex items-center justify-between;
+}
+
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2 mt-2;
+}
+
+.progress-fill {
+  @apply bg-primary-500 h-2 rounded-full transition-all duration-300;
+}
+
+.drop-zone {
+  @apply border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-500 transition-colors duration-200;
+}
+
+.drop-zone.dragover {
+  @apply border-primary-500 bg-primary-50 text-primary-600;
+}
+
+.loading-spinner {
+  @apply inline-block w-4 h-4 border-2 border-gray-300 border-t-primary-500 rounded-full animate-spin;
+}
+
+@media (max-width: 768px) {
+  .toolbar {
+    @apply p-2;
+  }
+  
+  .sidebar {
+    @apply w-full absolute z-10 h-full;
+  }
+  
+  .text-content {
+    @apply p-4 text-xs;
+  }
+}
